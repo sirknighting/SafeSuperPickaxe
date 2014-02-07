@@ -1,0 +1,12 @@
+#####
+#By default, the unbreakable blocks are bedrock(7), air(0), ender portal frame(120), and ender portal block(119)
+#By default, the pickaxes are the golden pickaxe(285), and the wooden pickaxe(270)
+######
+unbreakables:
+  - 0
+  - 119
+  - 120
+  - 7
+pickaxes:
+  - 285
+  - 270

@@ -1,0 +1,16 @@
+name: WorldGuardSafeSuperPickaxe
+main: safesuperpickaxe.WorldGuardSafeSuperPickaxe.class
+version: 0.0.1
+depend: [WorldGuard, LogBlock]
+author: sirknighting
+commands:
+  sspa:
+    description: Controls usage of the safesuperpickaxe
+    usage: /<command>
+    permission: sspa.use
+    permission-message: §cNope!
+    aliases: [safesuperpickaxe,sspa]
+permissions:
+  sspa.use:
+    default: op
+    description: allows usage of the SafeSuperPickaxe
