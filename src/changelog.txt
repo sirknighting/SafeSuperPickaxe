@@ -1,0 +1,5 @@
+v0.0.2
+- fixed a bug that had the unbreakable list acting as a whitelist rather than a blacklist
+- added the blockdrop configuration option.
+
+v0.0.1: Creation of plugin, had the unbreakable block options and the pickaxe choosing options.

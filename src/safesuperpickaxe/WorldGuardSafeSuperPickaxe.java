@@ -1,9 +1,12 @@
 package safesuperpickaxe;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,6 +16,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
@@ -20,6 +24,10 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
+
+
+
 
 
 
@@ -36,6 +44,7 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 	private List<Material> unbreakables=new ArrayList<Material>();
 	private Consumer lbconsumer = null;
 	private List<Integer> pickaxes=null;
+	private boolean blockDrops=false;
 
 	@SuppressWarnings("deprecation")
 	@Override
@@ -52,24 +61,26 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 			}
 		}
 		pickaxes=this.getConfig().getIntegerList("pickaxes");
-
+		blockDrops=this.getConfig().getBoolean("blockdrops");
 	}
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
-
-		if(sender instanceof Player){
-			Player player=(Player)sender;
-			if(sender.hasPermission("sspa.use")){
-				if(args.length==0){
-					toggleUsing(player);
-				}
-				else if(args.length==1){
-					if(args[0].equalsIgnoreCase("on")){
-						setUsing(player,true);
-						sender.sendMessage(successfulChangeMessage+"enabled.");
+		if(cmd.getName().equalsIgnoreCase("sspa")){
+			if(sender instanceof Player){
+				Player player=(Player)sender;
+				if(sender.hasPermission("sspa.use")){
+					if(args.length==0){
+						toggleUsing(player);
+						return true;
 					}
-					if(args[0].equalsIgnoreCase("off")){
-						setUsing(player,false);
-						sender.sendMessage(successfulChangeMessage+"disabled.");
+					else if(args.length==1){
+						if(args[0].equalsIgnoreCase("on")){
+							setUsing(player,true);
+							return true;
+						}
+						if(args[0].equalsIgnoreCase("off")){
+							setUsing(player,false);
+							return true;
+						}
 					}
 				}
 			}
@@ -78,9 +89,11 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 	}
 	public void setUsing(Player player, boolean value){
 		player.setMetadata(metadataKey,new FixedMetadataValue(this,value));
+		if(value)player.sendMessage(successfulChangeMessage+"enabled.");
+		else player.sendMessage(successfulChangeMessage+"disabled.");
 	}
 	public void toggleUsing(Player player){
-		player.setMetadata(metadataKey,new FixedMetadataValue(this,!isUsing(player)));
+		setUsing(player,!isUsing(player));
 	}
 	/**
 	 * public boolean setUsing(Player player, String argument){
@@ -128,7 +141,7 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 			Block block=event.getClickedBlock();
 			if(pickaxes==null)return;
 			if(pickaxes.contains(player.getItemInHand().getTypeId())){
-				if(unbreakables.contains(block.getType())){
+				if(!unbreakables.contains(block.getType())){
 					if(isUsing(player)){
 						if(getWorldGuard().canBuild(player, block)){
 							performSuperPicking(player, block);
@@ -145,18 +158,14 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 	}
 	private void performSuperPicking(Player player,Block block){
 		this.lbconsumer.queueBlockBreak(player.getName(),block.getState());
-		block.breakNaturally();
+		if(this.blockDrops){
+			Collection<ItemStack> drops=block.getDrops();
+			World w=block.getWorld();
+			Location l=block.getLocation();
+			for(ItemStack i: drops){
+				w.dropItem(l,i);
+			}
+		}
 		block.setType(Material.AIR);
-
 	}
-
-
-	//For use with the logging with logblock:
-	//lbconsumer.queueBlockBreak(event.getPlayer().getName(), event.getClickedBlock().getState());
-
-
-	//For use with checking for worldguard:
-	//canBuild(org.bukkit.entity.Player player, org.bukkit.Location location)
-	//canBuild(org.bukkit.entity.Player player, org.bukkit.block.Block block)
-
 }
