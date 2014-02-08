@@ -1,3 +1,6 @@
+v0.1.0
+- first version that actually loads on the server
+- changed dependency on logblock to softdepends
 v0.0.2
 - fixed a bug that had the unbreakable list acting as a whitelist rather than a blacklist
 - added the blockdrop configuration option.

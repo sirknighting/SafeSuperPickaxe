@@ -43,6 +43,7 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 	private static String successfulChangeMessage="§7[§aSafeSuperPickaxe§7]§aSuperPickaxe ";
 	private List<Material> unbreakables=new ArrayList<Material>();
 	private Consumer lbconsumer = null;
+	private boolean logblock = false;
 	private List<Integer> pickaxes=null;
 	private boolean blockDrops=false;
 
@@ -52,6 +53,7 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 		final PluginManager pm=getServer().getPluginManager();
 		final Plugin plugin=pm.getPlugin("LogBlock");
 		if (plugin!=null)lbconsumer=((LogBlock)plugin).getConsumer();
+		else logblock=false;
 		this.getServer().getPluginManager().registerEvents(this,this);
 		List<Integer> unbreakableIds=this.getConfig().getIntegerList("unbreakables");
 		for(Integer i:unbreakableIds){
@@ -62,6 +64,7 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 		}
 		pickaxes=this.getConfig().getIntegerList("pickaxes");
 		blockDrops=this.getConfig().getBoolean("blockdrops");
+		logblock=(lbconsumer!=null);
 	}
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
 		if(cmd.getName().equalsIgnoreCase("sspa")){
@@ -157,7 +160,7 @@ public class WorldGuardSafeSuperPickaxe extends JavaPlugin implements Listener{
 		return;
 	}
 	private void performSuperPicking(Player player,Block block){
-		this.lbconsumer.queueBlockBreak(player.getName(),block.getState());
+		if(logblock)this.lbconsumer.queueBlockBreak(player.getName(),block.getState());
 		if(this.blockDrops){
 			Collection<ItemStack> drops=block.getDrops();
 			World w=block.getWorld();
